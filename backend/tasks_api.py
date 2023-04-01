@@ -57,7 +57,17 @@ async def create_tasks(tasks:UserRequestedTasks,response: Response,current_user:
     requested_tasks_as_string = _prepare_input_tasks(tasks)
 
     try:
-        generated_tasks = await _get_openai_response(requested_tasks_as_string)
+        generated_tasks = await _get_generated_tasks_from_openai(requested_tasks_as_string)
+
+        print('============generated_tasks============')
+        print(generated_tasks)
+
+        scheduled_tasks = await _get_scheduled_tasks_from_openai(generated_tasks)
+
+        print('============scheduled_tasks============')
+        print(scheduled_tasks)
+
+        return scheduled_tasks
 
     except openai.error.Timeout as e:
         #Handle timeout error, e.g. retry or log
@@ -98,7 +108,7 @@ async def create_tasks(tasks:UserRequestedTasks,response: Response,current_user:
     return _parse_tasks(generated_tasks)
 
 
-async def _get_openai_response(tasks:str):
+async def _get_generated_tasks_from_openai(tasks:str):
     prompts = config["prompts"]
 
     response = openai.ChatCompletion.create(
@@ -121,6 +131,34 @@ async def _get_openai_response(tasks:str):
     )
 
     openai_response = response["choices"][0]["message"]["content"]
+
+    return openai_response
+
+async def _get_scheduled_tasks_from_openai(generated_tasks:str):
+
+    prompts = config["prompts"]
+
+    response = openai.ChatCompletion.create(
+        model=config["models"]["gpt-3.5"]["model-name"],
+        messages=[
+            {"role": "system", "content": prompts['day_schedule_system_prompt']},
+            {
+                "role": "user",
+                "content": prompts['day_schedule_prompt_prefix']
+                + generated_tasks
+                + prompts['day_schedule_system_prompt_suffix'],
+            },
+        ],
+        temperature=0.5,
+        max_tokens=1024,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+        stop=["\n\n\n"],
+    )
+
+    openai_response = response["choices"][0]["message"]["content"]
+
     return openai_response
 
 
