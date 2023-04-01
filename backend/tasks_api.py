@@ -7,7 +7,7 @@ import user_auth_api
 from fastapi import Response, status
 from pydantic import BaseModel
 
-with open('../config.json') as f:    
+with open('./config.json') as f:    
         config = json.load(f)
 
 
@@ -58,7 +58,7 @@ async def create_tasks(tasks:UserRequestedTasks,response: Response,current_user:
 
     try:
         generated_tasks = await _get_openai_response(requested_tasks_as_string)
-        
+
     except openai.error.Timeout as e:
         #Handle timeout error, e.g. retry or log
         response.status_code = status.HTTP_408_REQUEST_TIMEOUT
