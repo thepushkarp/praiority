@@ -1,0 +1,5 @@
+.pages-container{
+    height: calc(100vh - 10rem);
+    overflow: auto;
+    padding-bottom: 20rem;
+}

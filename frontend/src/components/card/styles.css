@@ -1,0 +1,23 @@
+.card-container{
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    min-height: 10rem;
+    /* max-height: 10rem; */
+    display: grid;
+    /* opacity: 0.3; */
+
+    border-bottom: 1px solid var(--primary-color);
+    background-color: var(--primary-color-800);
+    overflow-y: auto;
+    color: var(--primary-color);    
+    /* justify-content: space-between; */
+    /* box-shadow: 0px 6px 0.75rem rgba(31, 72, 126, 0.24); */
+    border-radius: 0.75rem;
+    cursor: pointer;
+}

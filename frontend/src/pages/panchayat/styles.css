@@ -1,0 +1,66 @@
+.panchayat-page{
+    display: flex;
+    height: 100%;
+    padding: 0rem 1rem;
+}
+.prompts-container{
+    /* display: grid; */
+    /* grid-template-columns: 10rem; */
+    /* grid-template-rows: 10rem; */
+    /* grid-gap: 1rem; */
+    margin: 0rem 3rem;
+    height: calc(100% - 5rem);
+    overflow-y: auto;
+    /* gap: 4rem; */
+    width: 100%;
+    overflow-y: auto;
+    margin-bottom: 20rem;
+}
+.input-container{
+    padding: 0rem 1rem;
+    position: fixed;
+    bottom: 2rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 2rem;
+    /* max-height: 10rem; */
+    width: 95%;
+    border: 0.5px solid var(--primary-color-500);
+    background-color: var(--primary-color-500);
+    background-clip: padding-box;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; 
+    box-shadow: rgba(var(--primary-color-500), 0.2) 0px 8px 24px;
+
+}
+
+@media screen and (max-width: 768px){
+    .prompts-container::-webkit-scrollbar {
+        display: none;
+    }
+    .input-container{
+    padding: 0rem 1rem;
+    position: fixed;
+    bottom: 1rem;
+    /* max-height: 10rem; */
+    width: 80%;
+}
+}
+
+
+.send{
+    position: absolute;
+    right: 2rem;
+    margin-bottom: 0;
+    padding: 0.5rem 1rem;
+    height: fit-content;
+    background-color: transparent;
+    box-shadow: none;
+    /* top: 0.1rem; */
+}
+
+.send:hover{
+    cursor: pointer;
+    background-color: var(--primary-color-500);
+    color: var(--primary-color);
+}
