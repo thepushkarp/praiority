@@ -1,0 +1,206 @@
+[
+	{
+		"task_id": 0,
+		"task_name": "Call Jessica",
+		"task_details": [
+			{
+				"id": 6,
+				"task_detail_name": "Look up Jessica's phone number",
+				"task_time_estimate": "5",
+				"task_priority": "Low"
+			},
+			{
+				"id": 7,
+				"task_detail_name": "Dial Jessica's phone number",
+				"task_time_estimate": "1",
+				"task_priority": "High"
+			},
+			{
+				"id": 8,
+				"task_detail_name": "Introduce yourself and ask how she's doing",
+				"task_time_estimate": "2",
+				"task_priority": "Medium"
+			},
+			{
+				"id": 9,
+				"task_detail_name": "Discuss the purpose of the call",
+				"task_time_estimate": "10",
+				"task_priority": "High"
+			},
+			{
+				"id": 10,
+				"task_detail_name": "Take notes and summarize the call",
+				"task_time_estimate": "5",
+				"task_priority": "Medium"
+			}
+		]
+	},
+	{
+		"task_id": 1,
+		"task_name": "Complete writing the blog post",
+		"task_details": [
+			{
+				"id": 11,
+				"task_detail_name": "Brainstorm ideas for the blog post",
+				"task_time_estimate": "20",
+				"task_priority": "Low"
+			},
+			{
+                "id": 12,
+				"task_detail_name": "Research for the blog post",
+				"task_time_estimate": "30",
+				"task_priority": "Medium"
+			},
+			{
+                "id": 13,
+				"task_detail_name": "Write the introduction",
+				"task_time_estimate": "15",
+				"task_priority": "High"
+			},
+			{
+                "id": 14,
+				"task_detail_name": "Write the body of the post",
+				"task_time_estimate": "60",
+				"task_priority": "High"
+			},
+			{
+                "id": 15,
+				"task_detail_name": "Write the conclusion",
+				"task_time_estimate": "15",
+				"task_priority": "High"
+			},
+			{
+                "id": 16,
+				"task_detail_name": "Edit and proofread the post",
+				"task_time_estimate": "30",
+				"task_priority": "Medium"
+			}
+		]
+	},
+	{
+		"task_id": 1,
+		"task_name": "Cook brownies for dad's birthday",
+		"task_details": [
+			{
+                "id":17,
+				"task_detail_name": "Gather ingredients and equipment",
+				"task_time_estimate": "10",
+				"task_priority": "Low"
+			},
+			{
+                "id":18,
+				"task_detail_name": "Preheat the oven",
+				"task_time_estimate": "5",
+				"task_priority": "Medium"
+			},
+			{
+                "id":19,
+				"task_detail_name": "Mix the batter",
+				"task_time_estimate": "20",
+				"task_priority": "High"
+			},
+			{
+                "id":20,
+				"task_detail_name": "Pour the batter into the pan",
+				"task_time_estimate": "5",
+				"task_priority": "Medium"
+			},
+			{
+                "id":21,
+				"task_detail_name": "Bake the brownies in the oven",
+				"task_time_estimate": "25",
+				"task_priority": "High"
+			},
+			{
+                "id":22,
+				"task_detail_name": "Take the brownies out of the oven and let them cool",
+				"task_time_estimate": "15",
+				"task_priority": "Medium"
+			},
+			{
+                "id":23,
+				"task_detail_name": "Cut and serve the brownies",
+				"task_time_estimate": "10",
+				"task_priority": "High"
+			}
+		]
+	},
+	{
+		"task_id": 3,
+		"task_name": "Collect package from the post office",
+		"task_details": [
+			{
+                "id":24,
+				"task_detail_name": "Get ready to go to the post office",
+				"task_time_estimate": "10",
+				"task_priority": "Low"
+			},
+			{
+                "id":25,
+				"task_detail_name": "Travel to the post office",
+				"task_time_estimate": "20",
+				"task_priority": "Medium"
+			},
+			{
+                "id":26,
+				"task_detail_name": "Wait in line to collect the package",
+				"task_time_estimate": "15",
+				"task_priority": "Medium"
+			},
+			{
+                "id":27,
+				"task_detail_name": "Show identification and collect the package",
+				"task_time_estimate": "5",
+				"task_priority": "High"
+			},
+			{
+                "id":28,
+				"task_detail_name": "Check the contents of the package",
+				"task_time_estimate": "10",
+				"task_priority": "Medium"
+			}
+		]
+	},
+	{
+		"task_id": 4,
+		"task_name": "Buy groceries for the week",
+		"task_details": [
+			{
+                "id":29,
+				"task_detail_name": "Make a grocery list",
+				"task_time_estimate": "10",
+				"task_priority": "Low"
+			},
+			{
+                "id":30,
+				"task_detail_name": "Get ready to go to the grocery store",
+				"task_time_estimate": "10",
+				"task_priority": "Low"
+			},
+			{
+                "id":31,
+				"task_detail_name": "Travel to the grocery store",
+				"task_time_estimate": "20",
+				"task_priority": "Medium"
+			},
+			{
+                "id":32,
+				"task_detail_name": "Find and select the items on the list",
+				"task_time_estimate": "45",
+				"task_priority": "High"
+			},
+			{
+                "id":33,
+				"task_detail_name": "Pay for the groceries",
+				"task_time_estimate": "5",
+				"task_priority": "Medium"
+			},
+			{
+                "id":34,
+				"task_detail_name": "Pack the groceries and travel back home",
+				"task_time_estimate": "30",
+				"task_priority": "Medium"
+			}
+		]
+	}
+]

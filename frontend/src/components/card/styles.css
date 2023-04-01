@@ -21,3 +21,33 @@
     border-radius: 0.75rem;
     cursor: pointer;
 }
+.card-grid-row{
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-gap: 1rem;
+}
+.list-item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    margin: 0.5rem 0;
+}
+.tile-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.tile-actions{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    height: 1rem;
+    cursor: pointer;
+}
+.tile-actions >img{
+    height: 1.5rem;
+    width: 1.5rem;
+}
