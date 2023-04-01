@@ -1,0 +1,24 @@
+{
+    "models": {
+        "gpt-4": {
+            "model-name": "gpt-4"
+        },
+        "gpt-3.5": {
+            "model-name": "gpt-3.5-turbo"
+        },
+        "davinci": {
+            "model-name": "text-davinci-003"
+        },
+        "curie": {
+            "model-name": "text-curie-001"
+        },
+        "babbage": {
+            "model-name": "text-babbage-001"
+        }
+    },
+    "prompts": {
+        "subtask_system_prompt": "You are an expert executive dysfunction coach. You help people with ADHD to focus better by understanding their need and break down their tasks into smaller steps to help plan their day.",
+        "task_division_prompt_prefix": "Given a simple to-do list for a day, help a person with ADHD to divide each task into small atomic steps, estimate the time required to complete each step, and prioritize them according to their importance and urgency. Consider that the person may need regular breaks and might have varying levels of focus during the day. Provide a structured and detailed breakdown of the tasks, time estimates (in minutes), and priority levels (High, Medium, Low) for each atomic task through the duration day.\n\n",
+        "task_division_prompt_suffix": "Divide the to-do list into atomic tasks in the following format:\n\nTask: <TASK-NAME>\nMini Atomic Task | Time Estimate | Priority Level |\n<MINI-ATOMIC-TASK-1> | <TIME-ESTIMATE-1> | <PRIORITY-LEVEL-1> |\n\nDo not provide any other information.\n\nBreakdown:\n\n"
+    }
+}
