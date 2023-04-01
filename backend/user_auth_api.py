@@ -1,4 +1,4 @@
-import sqlite3
+import database
 from datetime import datetime, timedelta
 
 import jwt
@@ -14,8 +14,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 24*60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
 
 class User(BaseModel):
     id: int
@@ -34,12 +32,9 @@ class TokenData(BaseModel):
     email: str = None
     
 
-def get_db_connection():
-    conn = sqlite3.connect('users.sqlite')
-    return conn
 
-def get_user(email: str):
-    conn = get_db_connection()
+def _get_user(email: str):
+    conn = database.get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT id, email, password FROM users WHERE email = ?', (email,))
     row = cursor.fetchone()
@@ -48,15 +43,15 @@ def get_user(email: str):
     if row is not None:
         return User(id=row[0], email=row[1], password=row[2])
 
-def authenticate_user(email: str, password: str):
-    user = get_user(email)
+def _authenticate_user(email: str, password: str):
+    user = _get_user(email)
     if not user:
         return False
     if not pwd_context.verify(password, user.password):
         return False
     return user
 
-def create_access_token(data: dict, expires_delta: timedelta):
+def _create_access_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
@@ -64,7 +59,7 @@ def create_access_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 async def signup(user: NewUser):
-    conn = get_db_connection()
+    conn = database.get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL);')
@@ -78,16 +73,16 @@ async def signup(user: NewUser):
     return {"message": "User created"}
 
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
+    user = _authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
+    access_token = _create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def _get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
@@ -96,10 +91,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(email=email)
     except :
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    user = get_user(token_data.email)
+    user = _get_user(token_data.email)
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
     return user
 
-async def read_users_me(current_user: User = Depends(get_current_user)):
+async def read_users_me(current_user: User = Depends(_get_current_user)):
     return current_user
