@@ -1,13 +1,13 @@
 import json
-import database
 from typing import Annotated, List, Union
 
+import database
 import openai
 import user_auth_api
 from fastapi import Response, status
 from pydantic import BaseModel
 
-with open('./config.json') as f:    
+with open('../config.json') as f:    
         config = json.load(f)
 
 

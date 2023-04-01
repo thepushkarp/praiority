@@ -1,8 +1,6 @@
 import os
 from typing import Annotated, List, Union
 
-
-
 import openai
 from dotenv import load_dotenv
 from fastapi import Body, FastAPI

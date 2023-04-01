@@ -1,6 +1,6 @@
-import database
 from datetime import datetime, timedelta
 
+import database
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
