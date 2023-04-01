@@ -53,93 +53,75 @@ class TimeSlot(BaseModel):
 
 _scheduled_tasks = """
 Time Slot: 8:00 AM - 9:00 AM
-Plug in the charger | 1 min | High
-Set phone to silent mode | 1 min | Medium
-Check battery percentage | 1 min | Low
-Wait for phone to charge to 100% | 60 mins | Low
+Check bank balance | 5 | High |
 
 Time Slot: 9:00 AM - 10:00 AM
-Sort clothes by color | 5 mins | Low
-Load clothes into the washing machine | 5 mins | High
-Add detergent and fabric softener | 2 mins | Medium
-Start the washing machine | 1 min | High
+Fill watering can | 2 | Medium |
+Water plants | 10 | High |
+Clean up spilled water | 3 | Low |
 
 Time Slot: 10:00 AM - 11:00 AM
-Compose resignation letter | 30 mins | High
-Proofread and edit letter | 10 mins | Medium
-Attach relevant documents | 5 mins | Medium
-Send email | 1 min | High
+Decide who to call | 5 | Medium |
+Make phone call | 15 | High |
+Listen to family member | 20 | High |
+Take notes if necessary | 5 | Medium |
 
 Time Slot: 11:00 AM - 12:00 PM
-Wait for the washing cycle to complete | 45 mins | Low
-Transfer clothes to the dryer | 5 mins | High
-Start the dryer | 1 min | High
+Withdraw cash | 10 | High |
+Go to broker's office | 15 | High |
+Pay rent | 5 | High |
 
 Time Slot: 12:00 PM - 1:00 PM
-Fold and put away clothes | 20 mins | Medium
+Lunch Break
 
 Time Slot: 1:00 PM - 2:00 PM
-Decide on dinner | 5 mins | Low
-Prepare dinner | 20 mins | High
-Set the table | 5 mins | Medium
-Eat dinner | 20 mins | High
+Set alarm | 2 | High |
+Brush teeth | 5 | High |
+Change into pajamas | 2 | Medium |
 
 Time Slot: 2:00 PM - 3:00 PM
-Regular break
+Read for 20 minutes | 20 | Medium |
 
 Time Slot: 3:00 PM - 4:00 PM
-Regular break
+Break
 
 Time Slot: 4:00 PM - 5:00 PM
-Regular break
+Check bank balance | 5 | High |
 
 Time Slot: 5:00 PM - 6:00 PM
-Regular break
+Fill watering can | 2 | Medium |
+Water plants | 10 | High |
+Clean up spilled water | 3 | Low |
 
 Time Slot: 6:00 PM - 7:00 PM
-Regular break
+Break
 
 Time Slot: 7:00 PM - 8:00 PM
-Regular break
+Decide who to call | 5 | Medium |
+Make phone call | 15 | High |
+Listen to family member | 20 | High |
+Take notes if necessary | 5 | Medium |
 
 Time Slot: 8:00 PM - 9:00 PM
-Regular break
+Read for 20 minutes | 20 | Medium |
 
 Time Slot: 9:00 PM - 10:00 PM
-Regular break
+Turn off lights | 2 | High |
 
-Time Slot: 10:00 PM - 11:00 PM
-Regular break
-
-Time Slot: 11:00 PM - 12:00 AM
-Regular break
-
-Note: The regular breaks can be taken anytime between the time slots, as per the person's convenience.
-"""
+Note: The time slots can be adjusted as per the individual's preference and availability."""
 
 async def create_tasks(tasks:UserRequestedTasks,response: Response,current_user: user_auth_api.User):
     
     requested_tasks_as_string = _prepare_input_tasks(tasks)
 
     try:
-        global _scheduled_tasks 
-
-        if _scheduled_tasks is not None:
-            parsed_scheduled_task = _parse_tasks(_scheduled_tasks)
-            # print(parsed_scheduled_task)
-            return parsed_scheduled_task
-
+        
         generated_tasks = await _get_generated_tasks_from_openai(requested_tasks_as_string)
-
-        print('============generated_tasks============')
-        print(generated_tasks)
-
         scheduled_tasks = await _get_scheduled_tasks_from_openai(generated_tasks)
 
-        print('============scheduled_tasks============')
-        print(scheduled_tasks)
+        parsed_tasks = _parse_tasks(scheduled_tasks)
 
-        return scheduled_tasks
+        return parsed_tasks
 
     except openai.error.Timeout as e:
         #Handle timeout error, e.g. retry or log
@@ -177,7 +159,6 @@ async def create_tasks(tasks:UserRequestedTasks,response: Response,current_user:
         return {"details":f"OpenAI API request exceeded rate limit: {e}"}
         
 
-    return _parse_tasks(generated_tasks)
 
 
 async def _get_generated_tasks_from_openai(tasks:str):
@@ -252,55 +233,33 @@ def _prepare_input_tasks(tasks:UserRequestedTasks):
 
 def _parse_tasks(tasks_output: str) -> List[TimeSlot]:
 
-    print('====================================================================================================')
-
-    slots = []
+    available_slots = []
 
     for slot_data in tasks_output.split("Time Slot: "):
         
         if slot_data.strip() == "":
             continue
         
-        print('==========slot_data==========')
-        print(slot_data)
-        
-
         slot_and_sub_tasks = slot_data.split("\n")
 
         slot_time = slot_and_sub_tasks[0]
         sub_tasks_str = slot_and_sub_tasks[1:]
 
-
-        print('==========slot_time==========')
-        print(slot_time)
-
-        print('======tasks======')
-        print(sub_tasks_str)
-
         sub_tasks = []
-
-        # task_name, task_details = task.split("\nMini Atomic Task | Time Estimate | Priority Level |")
-        # task_name = task_name.strip()
-        # task_details = task_details.strip()
-        # sub_task["task_name"] = task_name
-        # sub_task["task_details"] = []
 
         for current_sub_task in sub_tasks_str:
 
-            if current_sub_task.strip() == "" or len(current_sub_task.split("|")) != 3:
+            if current_sub_task.strip() == "" or len(current_sub_task.split("|")) != 4:
                 continue
 
             current_sub_task = current_sub_task.strip()
-            sub_task_name, sub_task_time_estimate, sub_task_priority = current_sub_task.split("|")
+            sub_task_name, sub_task_time_estimate, sub_task_priority,_ = current_sub_task.split("|")
 
             sub_task = TaskDetails(
                 task_detail_name=sub_task_name.strip(),
                 task_time_estimate_in_minutes=sub_task_time_estimate.strip(),
                 task_priority=sub_task_priority.strip(),
             )
-
-            print('======sub_task======')
-            print(sub_task)
 
             sub_tasks.append(sub_task)
 
@@ -310,9 +269,9 @@ def _parse_tasks(tasks_output: str) -> List[TimeSlot]:
             task_details=sub_tasks
         )
 
-        slots.append(current_slot)
+        available_slots.append(current_slot)
 
-    return slots
+    return available_slots
 
 
 async def _save_tasks_to_DB():
