@@ -45,9 +45,9 @@ function Home() {
 
                 <div className="homepage-text">
                     <button onClick={gotoPromts} className="chat-btn">
-                        Go to Chat
+                        Add Tasks
                     </button>
-                    <h1>{'Did you know ?'}</h1>
+                    <h1>{'Complete your tasks, one at a time'}</h1>
                     <h2>{quotes[Math.floor(Math.random() * 15)]}</h2>
                 </div>
             </div>
