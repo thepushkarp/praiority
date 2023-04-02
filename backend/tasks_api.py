@@ -26,7 +26,7 @@ class Task(BaseModel):
     task_id: int
     user_id: int
     task_name: str
-    is_accepted: bool = True
+    is_accepted: bool = False
     sub_tasks: List[SubTask] = []
 
 class TimeSlot(BaseModel):
@@ -75,13 +75,13 @@ async def _put_tasks_in_db(all_tasks_str:dict,current_user:user_auth_api.User) -
         task_name = task_str['task_name']
         user_id = int(current_user.id)
 
-        cursor.execute('INSERT INTO task (user_id, task_name, is_accepted) VALUES (?, ?, ?)', (user_id, task_name, True))
+        cursor.execute('INSERT INTO task (user_id, task_name, is_accepted) VALUES (?, ?, ?)', (user_id, task_name, False))
         conn.commit()
 
         task = Task(
             task_id=cursor.lastrowid,
             task_name=task_name,
-            is_accepted=True,
+            is_accepted=False,
             user_id=user_id
         )
 
