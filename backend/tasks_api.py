@@ -36,25 +36,40 @@ class TimeSlot(BaseModel):
 
 
 
-async def _put_sub_tasks_in_db(parent_task:Task, tasks_str:dict) -> List[TaskDetails]:
-        conn = await database.get_db_connection()
-        cursor = conn.cursor() 
+async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> List[TaskDetails]:
+    conn = await database.get_db_connection()
+    cursor = conn.cursor() 
+    
+    cursor.execute('CREATE TABLE IF NOT EXISTS sub_tasks (task_detail_id INTEGER PRIMARY KEY, parent_task_id INTEGER NOT NULL, task_name TEXT NOT NULL, time_minutes TEXT NOT NULL, priority TEXT NOT NULL);')
+    conn.commit()
+    
+    sub_tasks = []
+
+    for sub_task_str in all_sub_tasks_str:
         
-        cursor.execute('CREATE TABLE IF NOT EXISTS sub_tasks (task_detail_id INTEGER PRIMARY KEY, parent_task_id INTEGER NOT NULL, task_name TEXT NOT NULL, time_minutes TEXT NOT NULL, priority TEXT NOT NULL);')
+        task_name = sub_task_str['task_detail_name']
+        task_time_estimate = sub_task_str['task_time_estimate']
+        task_priority = sub_task_str['task_priority']
+        
+        cursor.execute('INSERT INTO sub_tasks (parent_task_id, task_name, time_minutes, priority) VALUES (?, ?, ?, ?)', (parent_task_id, task_name, task_time_estimate, task_priority))
         conn.commit()
 
+        sub_task = TaskDetails(
+            task_detail_id=cursor.lastrowid,
+            parent_task_id=parent_task_id,
+            is_completed=False,
+            task_detail_name=task_name,
+            task_time_estimate_in_minutes=task_time_estimate,
+            task_priority=task_priority
+        )
 
-        task_str = tasks_str
+        sub_tasks.append(sub_task)
+    
+    return sub_tasks
 
+        
 
-        cursor.execute('INSERT INTO sub_tasks (parent_task_id, task_name, time_minutes, priority) VALUES (?, ?, ?, ?)', (user.email, hashed_password))
-        conn.commit()
-
-        # cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
-#       row = cursor.fetchone()
-#       conn.close()
-
-async def _put_tasks_in_db(tasks_str:dict,current_user:user_auth_api.User) -> List[Task]:
+async def _put_tasks_in_db(all_tasks_str:dict,current_user:user_auth_api.User) -> List[Task]:
     conn = await database.get_db_connection()
     cursor = conn.cursor() 
     
@@ -62,8 +77,8 @@ async def _put_tasks_in_db(tasks_str:dict,current_user:user_auth_api.User) -> Li
     conn.commit()
 
     tasks = []
-    
-    for task_str in tasks_str:
+
+    for task_str in all_tasks_str:
 
         task_name = task_str['task_name']
         user_id = int(current_user.id)
@@ -79,13 +94,14 @@ async def _put_tasks_in_db(tasks_str:dict,current_user:user_auth_api.User) -> Li
 
         # sub task parsing ====================
 
-        sub_tasks_str = tasks_str['task_details']
+        all_sub_tasks_str = task_str['task_details']
 
-        for sub_task_str in sub_tasks_str:
+        sub_tasks = await _put_sub_tasks_in_db(
+            all_sub_tasks_str=all_sub_tasks_str,
+            parent_task_id=task.task_id,
+        )
 
-            print('===========sub_task_str===========')
-            print(sub_task_str)
-        
+        task.sub_tasks = sub_tasks
 
         tasks.append(task)
 
@@ -96,30 +112,6 @@ async def _put_tasks_in_db(tasks_str:dict,current_user:user_auth_api.User) -> Li
 #      row = cursor.fetchone()
 #      conn.close()
     pass
-
-
-# async def get_tasks(current_user:user_auth_api.User):
-#     conn = database.get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
-#     row = cursor.fetchone()
-#     conn.close()
-
-#     if row is not None:
-#         return TaskEntity(task_id=row[0], task_name=row[1])
-    
-# async def get_task_entity(current_user:user_auth_api.User):
-#     conn = database.get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
-#     row = cursor.fetchone()
-#     conn.close()
-
-#     if row is not None:
-#         return User(id=row[0], email=row[1], password=row[2])
-
-# async def get_task_detail_entity(current_user:user_auth_api.User):
-#     pass
 
 
 
@@ -139,16 +131,16 @@ async def sub_tasks(tasks:UserRequestedTasks,response: Response,current_user: us
 
         tasks = await _put_tasks_in_db(parsed_tasks,current_user)
 
-        for task in tasks:
-            sub_tasks = await _put_sub_tasks_in_db(task, parsed_tasks)
+        # for task in tasks:
+        #     sub_tasks = await _put_sub_tasks_in_db(task, parsed_tasks)
 
-            print('===============inserted sub_tasks===============')
-            print(sub_tasks)
-
-
+        #     print('===============inserted sub_tasks===============')
+        #     print(sub_tasks)
 
 
-        return task
+
+
+        return tasks
 
     except openai.error.RateLimitError as e:
         #Handle rate limit error, e.g. wait or log
@@ -265,13 +257,9 @@ def _prepare_input_tasks(tasks:UserRequestedTasks):
     requested_tasks = tasks.requested_tasks
     task_list=''
 
-    print('=========')
     for index, task in enumerate(requested_tasks):
         numbered_task = f'\n{index}. {task}'
-        print(numbered_task)
         task_list = task_list + numbered_task
-
-    print('=========')
 
     return task_list
 
@@ -354,29 +342,29 @@ async def _save_tasks_to_DB():
 _generated_tasks = """
 Task: Wash utensils
 Mini Atomic Task | Time Estimate | Priority Level |
-Wash dishes | 10 | High
-Dry dishes and put them away | 5 | Medium
+Wash dishes | 10 | High |
+Dry dishes and put them away | 5 | Medium |
 
 Task: Water plants
 Mini Atomic Task | Time Estimate | Priority Level |
-Gather watering can and fill with water | 5 | Low
-Water plants | 10 | High
-Clean up any spills | 5 | Low
+Gather watering can and fill with water | 5 | Low |
+Water plants | 10 | High |
+Clean up any spills | 5 | Low |
 
 Task: Talk to family
 Mini Atomic Task | Time Estimate | Priority Level |
-Decide on topic of conversation | 5 | Low
-Initiate conversation | 5 | High
-Listen actively and respond appropriately | 30 | High
+Decide on topic of conversation | 5 | Low |
+Initiate conversation | 5 | High |
+Listen actively and respond appropriately | 30 | High |
 
 Task: Go to bed timely
 Mini Atomic Task | Time Estimate | Priority Level |
-Finish any pending work | 30 | High
-Put away any distractions | 5 | Medium
-Brush teeth and change into comfortable clothes | 10 | High
-Set alarm for next day | 5 | Medium
-Get into bed and relax | 20 | High
-Sleep | 360 | High
+Finish any pending work | 30 | High |
+Put away any distractions | 5 | Medium |
+Brush teeth and change into comfortable clothes | 10 | High |
+Set alarm for next day | 5 | Medium |
+Get into bed and relax | 20 | High |
+Sleep | 360 | High |
 
 Note: Time estimates and priority levels can vary based on individual needs and preferences. It is important to work with the person to create a personalized plan that works best for them.
 """
@@ -439,3 +427,29 @@ Time Slot: 9:00 PM - 10:00 PM
 Turn off lights | 2 | High |
 
 Note: The time slots can be adjusted as per the individual's preference and availability."""
+
+
+# async def get_tasks(current_user:user_auth_api.User):
+#     conn = database.get_db_connection()
+#     cursor = conn.cursor()
+#     cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
+#     row = cursor.fetchone()
+#     conn.close()
+
+#     if row is not None:
+#         return TaskEntity(task_id=row[0], task_name=row[1])
+    
+# async def get_task_entity(current_user:user_auth_api.User):
+#     conn = database.get_db_connection()
+#     cursor = conn.cursor()
+#     cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
+#     row = cursor.fetchone()
+#     conn.close()
+
+#     if row is not None:
+#         return User(id=row[0], email=row[1], password=row[2])
+
+# async def get_task_detail_entity(current_user:user_auth_api.User):
+#     pass
+
+
