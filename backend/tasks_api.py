@@ -17,7 +17,7 @@ class UserRequestedTasks(BaseModel):
 class SubTask(BaseModel):
     sub_task_id: int
     parent_task_id: int
-    task_detail_name: str
+    sub_task_name: str
     is_completed: bool = False
     is_accepted: bool = True
     task_time_estimate_in_minutes: str
@@ -40,7 +40,7 @@ async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> Li
     conn = await database.get_db_connection()
     cursor = conn.cursor() 
     
-    cursor.execute('CREATE TABLE IF NOT EXISTS sub_tasks (task_detail_id INTEGER PRIMARY KEY, parent_task_id INTEGER NOT NULL, task_name TEXT NOT NULL, time_minutes TEXT NOT NULL, priority TEXT NOT NULL, is_completed BOOLEAN DEFAULT FALSE, is_accepted BOOLEAN DEFAULT TRUE);')
+    cursor.execute('CREATE TABLE IF NOT EXISTS sub_tasks (sub_task_id INTEGER PRIMARY KEY, parent_task_id INTEGER NOT NULL, sub_task_name TEXT NOT NULL, task_time_estimate_in_minutes TEXT NOT NULL, task_priority TEXT NOT NULL, is_completed BOOLEAN DEFAULT FALSE, is_accepted BOOLEAN DEFAULT TRUE);')
     conn.commit()
     
     sub_tasks = []
@@ -51,13 +51,13 @@ async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> Li
         task_time_estimate = sub_task_str['task_time_estimate']
         task_priority = sub_task_str['task_priority']
         
-        cursor.execute('INSERT INTO sub_tasks (parent_task_id, task_name, time_minutes, priority) VALUES (?, ?, ?, ?)', (parent_task_id, task_name, task_time_estimate, task_priority))
+        cursor.execute('INSERT INTO sub_tasks (parent_task_id, sub_task_name, task_time_estimate_in_minutes, task_priority) VALUES (?, ?, ?, ?)', (parent_task_id, task_name, task_time_estimate, task_priority))
         conn.commit()
 
         sub_task = SubTask(
             sub_task_id=cursor.lastrowid,
             parent_task_id=parent_task_id,
-            task_detail_name=task_name,
+            sub_task_name=task_name,
             task_time_estimate_in_minutes=task_time_estimate,
             task_priority=task_priority
         )
@@ -362,7 +362,7 @@ def _parse_scheduled_tasks(tasks_output: str) -> List[TimeSlot]:
             sub_task_name, sub_task_time_estimate, sub_task_priority,_ = current_sub_task.split("|")
 
             sub_task = SubTask(
-                task_detail_name=sub_task_name.strip(),
+                sub_task_name=sub_task_name.strip(),
                 task_time_estimate_in_minutes=sub_task_time_estimate.strip(),
                 task_priority=sub_task_priority.strip(),
             )
@@ -496,3 +496,111 @@ Note: The time slots can be adjusted as per the individual's preference and avai
 #     pass
 
 
+
+from fastapi import HTTPException
+
+
+
+
+# Get SubTask by ID
+async def get_subtask(sub_task_id: int) -> SubTask:
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM sub_tasks WHERE sub_task_id = ?", (sub_task_id,))
+    row = cursor.fetchone()
+    if row is not None:
+        sub_task = SubTask(
+            sub_task_id=row[0],
+            parent_task_id=row[1],
+            sub_task_name=row[2],
+            is_completed=bool(row[3]),
+            is_accepted=bool(row[4]),
+            task_time_estimate_in_minutes=row[5],
+            task_priority=row[6],
+        )
+        return sub_task
+    return None
+
+# Update SubTask by ID
+async def update_subtask_in_db(sub_task_id: int, sub_task: SubTask):
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE sub_tasks SET parent_task_id = ?, sub_task_name = ?, is_completed = ?, is_accepted = ?, task_time_estimate_in_minutes = ?, task_priority = ? WHERE sub_task_id = ?",
+        (
+            sub_task.parent_task_id,
+            sub_task.sub_task_name,
+            sub_task.is_completed,
+            sub_task.is_accepted,
+            sub_task.task_time_estimate_in_minutes,
+            sub_task.task_priority,
+            sub_task_id,
+        ),
+    )
+    conn.commit()
+
+# Delete SubTask by ID
+async def delete_subtask_from_db(sub_task_id: int):
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM sub_tasks WHERE sub_task_id = ?", (sub_task_id,))
+    conn.commit()
+
+# Get Task by ID
+async def get_task(task_id: int) -> Task:
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM task WHERE task_id = ?", (task_id,))
+    row = cursor.fetchone()
+    if row is not None:
+        sub_tasks = await get_subtasks_for_task(task_id)
+        task = Task(
+            task_id=row[0],
+            user_id=row[1],
+            task_name=row[2],
+            sub_tasks=sub_tasks,
+        )
+        return task
+    return None
+
+# Get SubTasks for Task by ID
+async def get_subtasks_for_task(task_id: int) -> List[SubTask]:
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM sub_tasks WHERE parent_task_id = ?", (task_id,))
+    rows = cursor.fetchall()
+    sub_tasks = []
+
+    for row in rows:
+
+        sub_task = SubTask(
+            sub_task_id=row[0],
+            parent_task_id=row[1],
+            sub_task_name=row[2],
+            is_completed=bool(row[3]),
+            is_accepted=bool(row[4]),
+            task_time_estimate_in_minutes=row[5],
+            task_priority=row[6],
+        )
+
+        sub_tasks.append(sub_task)
+    return sub_tasks
+
+# Update Task by ID
+async def update_task_in_db(task_id: int, task: Task):
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE task SET user_id = ?, task_name = ? WHERE task_id = ?",
+        (task.user_id, task.task_name, task_id),
+    )
+    conn.commit()
+    for sub_task in task.sub_tasks:
+        await update_subtask_in_db(sub_task.sub_task_id, sub_task)
+
+# Delete Task by ID
+async def delete_task_from_db(task_id: int):
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM task WHERE task_id = ?", (task_id,))
+    conn.commit()

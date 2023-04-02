@@ -66,7 +66,64 @@ async def create_tasks(tasks:tasks_api.UserRequestedTasks,response: Response,cur
 async def sub_tasks(tasks:tasks_api.UserRequestedTasks,response: Response,current_user: user_auth_api.User = Depends(user_auth_api._get_current_user)):
     return await tasks_api.sub_tasks(tasks,response,current_user)
 
-@app.get("/tasks/")
-async def get_tasks(current_user: user_auth_api.User = Depends(user_auth_api._get_current_user)):
-    return await tasks_api.get_tasks(current_user)
+# @app.get("/tasks/")
+# async def get_tasks(current_user: user_auth_api.User = Depends(user_auth_api._get_current_user)):
+#     return await tasks_api.get_tasks(current_user)
+
+
+
+
+
+# Get SubTask by ID
+@app.get("/subtasks/{sub_task_id}")
+async def read_subtask(sub_task_id: int):
+    sub_task = await tasks_api.get_subtask(sub_task_id)
+    if sub_task is None:
+        raise HTTPException(status_code=404, detail="SubTask not found")
+    return sub_task
+
+# Update SubTask by ID
+@app.put("/subtasks/{sub_task_id}")
+async def update_subtask(sub_task_id: int, sub_task: tasks_api.SubTask):
+    existing_sub_task = await tasks_api.get_subtask(sub_task_id)
+    if existing_sub_task is None:
+        raise HTTPException(status_code=404, detail="SubTask not found")
+    await tasks_api.update_subtask_in_db(sub_task_id, sub_task)
+    return {"message": "SubTask updated successfully"}
+
+# Delete SubTask by ID
+@app.delete("/subtasks/{sub_task_id}")
+async def delete_subtask(sub_task_id: int):
+    existing_sub_task = await tasks_api.get_subtask(sub_task_id)
+    if existing_sub_task is None:
+        raise HTTPException(status_code=404, detail="SubTask not found")
+    await tasks_api.delete_subtask_from_db(sub_task_id)
+    return {"message": "SubTask deleted successfully"}
+
+
+# Get Task by ID
+@app.get("/tasks/{task_id}")
+async def read_task(task_id: int):
+    task = await tasks_api.get_task(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+# Update Task by ID
+@app.put("/tasks/{task_id}")
+async def update_task(task_id: int, task: tasks_api.Task):
+    existing_task = await tasks_api.get_task(task_id)
+    if existing_task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    await tasks_api.update_task_in_db(task_id, task)
+    return {"message": "Task updated successfully"}
+
+# Delete Task by ID
+@app.delete("/tasks/{task_id}")
+async def delete_task(task_id: int):
+    existing_task = await tasks_api.get_task(task_id)
+    if existing_task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    await tasks_api.delete_task_from_db(task_id)
+    return {"message": "Task deleted successfully"}
 
