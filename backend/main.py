@@ -129,7 +129,7 @@ async def delete_task(task_id: int,current_user: user_auth_api.User = Depends(us
 
 # Get SubTask List by parent_task_id
 @app.get("/tasks/{task_id}/subtasks")
-async def get_tasks_for_user(task_id:int,current_user: user_auth_api.User = Depends(user_auth_api._get_current_user)):
+async def get_subtasks_for_task(task_id:int,current_user: user_auth_api.User = Depends(user_auth_api._get_current_user)):
     tasks = await tasks_api.get_subtasks_for_parent(task_id)
     if tasks is None:
         raise HTTPException(status_code=404, detail="Tasks not found")

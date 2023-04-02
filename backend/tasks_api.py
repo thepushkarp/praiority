@@ -8,7 +8,7 @@ from fastapi import HTTPException, Response, status
 from pydantic import BaseModel
 
 with open('../config.json') as f:    
-        config = json.load(f)
+    config = json.load(f)
 
 
 class UserRequestedTasks(BaseModel):
@@ -40,9 +40,6 @@ async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> Li
     conn = await database.get_db_connection()
     cursor = conn.cursor() 
     
-    cursor.execute('CREATE TABLE IF NOT EXISTS sub_tasks (sub_task_id INTEGER PRIMARY KEY, parent_task_id INTEGER NOT NULL, sub_task_name TEXT NOT NULL, task_time_estimate_in_minutes TEXT NOT NULL, task_priority TEXT NOT NULL, is_completed BOOLEAN DEFAULT FALSE, is_accepted BOOLEAN DEFAULT TRUE);')
-    conn.commit()
-    
     sub_tasks = []
 
     for sub_task_str in all_sub_tasks_str:
@@ -71,9 +68,6 @@ async def _put_tasks_in_db(all_tasks_str:dict,current_user:user_auth_api.User) -
     conn = await database.get_db_connection()
     cursor = conn.cursor() 
     
-    cursor.execute('CREATE TABLE IF NOT EXISTS task (task_id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, task_name TEXT NOT NULL);')
-    conn.commit()
-
     tasks = []
 
     for task_str in all_tasks_str:
@@ -110,9 +104,6 @@ async def _put_slots_in_db(all_slots_str:dict,current_user:user_auth_api.User) -
     conn = await database.get_db_connection()
     cursor = conn.cursor() 
     
-    cursor.execute('CREATE TABLE IF NOT EXISTS slot (slot_id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, slot_time TEXT NOT NULL);')
-    conn.commit()
-
     tasks = []
 
     for slot_str in all_slots_str:
