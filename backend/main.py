@@ -7,6 +7,7 @@ import moderation_api
 import openai
 import tasks_api
 import user_auth_api
+import uvicorn
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -134,3 +135,6 @@ async def get_subtasks_for_task(task_id:int,current_user: user_auth_api.User = D
     if tasks is None:
         raise HTTPException(status_code=404, detail="Tasks not found")
     return tasks
+
+if __name__ == "__main__":
+  uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
