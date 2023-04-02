@@ -49,7 +49,7 @@ code {
     --surface-1: -webkit-linear-gradient(0deg, rgba(31, 72, 126, 0.05), rgba(31, 72, 126, 0.05));
     --surface-2: -webkit-linear-gradient(0deg, rgba(31, 72, 126, 0.05), rgba(31, 72, 126, 0.05));
     --surface-3: -webkit-linear-gradient(0deg, rgba(31, 72, 126, 0.11), rgba(31, 72, 126, 0.11));
-    
+
     --disabled: #fff;
     --disabled-secondary: #fff;
 

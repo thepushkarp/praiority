@@ -8,10 +8,10 @@ function Header() {
         <a href='/'>Home</a>
       </button>
       <button>
-        <a href='/panchayat'>Panchayat</a>
+        <a href='/panchayat'>Divide Tasks</a>
       </button>
       <button>
-        <a href='/todos'>Kaam ki baatein</a>
+        <a href='/todos'>My Tasks</a>
       </button>
     </div>
   )
