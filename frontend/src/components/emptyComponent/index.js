@@ -23,9 +23,9 @@ function EmptyComponent() {
   return (
     <div>
         <h3>Here's an interesting fact!</h3>
-        <p>
+        
               <h2>{quotes[Math.floor(Math.random() * 15)]}</h2>
-        </p>
+        
     </div>
   )
 }

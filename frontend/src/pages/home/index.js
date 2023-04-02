@@ -26,6 +26,15 @@ function Home() {
     window.location.href = '/panchayat'
   }
 
+  const gotoLogin = () => {
+    window.location.href = '/login'
+  }
+
+  let token = localStorage.getItem('token')
+  if(!token){
+    gotoLogin()
+  }
+
   return (
     <div className='homepage-container'>
         <div className='homepage-content'>

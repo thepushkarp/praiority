@@ -7,7 +7,7 @@ import TodoList from '../todo'
 import "./styles.css"
 
 function Card(props) {
-  const [prompt,setPrompt] = useState([])
+  const [prompt,setPrompt] = useState({})
   const [loading,setLoading] = useState(false)
   useEffect(()=>{
     let temp_data = {...props.data}
@@ -119,7 +119,7 @@ function Card(props) {
   return (
     <div className='card-container'>
       {loading ? <Loader/> : null}
-      {!loading && props.taskList ? renderFormattedTasks() : renderTaskList()}
+      {!loading && prompt?.is_accepted ? renderFormattedTasks() : renderTaskList()}
     </div>
   )
 }
