@@ -53,3 +53,23 @@
     border-radius: 1rem;
     margin-bottom: 2rem;
  }
+
+
+ @media screen and (max-width: 768px){
+    .homepage-container{
+        margin-left: 0;
+    }
+    .homepage-content{
+        margin-left: 0;
+    }
+    .homepage-text{
+        margin-bottom: 0;
+    }
+    .logo-container{
+        height: 30vh;
+    }
+    .chat-btn{
+        margin-bottom: 0;
+    }
+ }
+   

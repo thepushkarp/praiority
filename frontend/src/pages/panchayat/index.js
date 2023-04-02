@@ -11,9 +11,11 @@ function Panchayat() {
     const [input,setInput] = useState('')
     const handleSend = async()=>{
       setLoading(true)
+        console.log(input.trim().split('\n'),"input to be sent")
+        let tempPrompt = await postPrompt({ requested_tasks: input.trim().split('\n') })
+        console.log(tempPrompt,"tempPrompt")
         setInput('')
-        let tempPrompt = await postPrompt({body:input})
-        setPrompts([...tempPrompt,...prompts])
+        setPrompts([...tempPrompt.data,...prompts])
         setLoading(false)
     }
     const handleKeyDown = (e)=>{
@@ -29,7 +31,8 @@ function Panchayat() {
               {     
                     loading? <Loader></Loader>:
                     prompts.map((prompt,idx)=>{
-                        return <Card key={idx} data={prompt} taskList={false}></Card>
+                        console.log(prompt,"prompt")
+                        return <Card key={idx} data={prompt} taskList={prompt.is_accepted}></Card>
                     }
                     )
               }

@@ -3,7 +3,17 @@ import "./styles.css"
 
 function Header() {
   return (
-    <div className='header'>Header</div>
+    <div className='header'>
+      <button>
+        <a href='/'>Home</a>
+      </button>
+      <button>
+        <a href='/panchayat'>Panchayat</a>
+      </button>
+      <button>
+        <a href='/todos'>Kaam ki baatein</a>
+      </button>
+    </div>
   )
 }
 

@@ -18,16 +18,17 @@ export const client = (url, { baseURL = "base", ...options } = {}) => {
     const endpoint = getURL(url, baseURL);
 
     let requestOptions = { ...options };
+    requestOptions.headers = {
+        "ngrok-skip-browser-warning": "any"
+    }
     if (baseURL !== "auth")
-        requestOptions.headers = {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-        };
+        requestOptions.headers["Authorization"] =  `Bearer ${localStorage.getItem("token")}`
 
     axios.interceptors.response.use(
         (config) => config,
         (error) => {
 
-            if (error.response.status === 401) {
+            if (error?.response?.status === 401) {
                 localStorage.clear()
                 window.location.href = '/login'
                 toast.error(error.response.data.message)

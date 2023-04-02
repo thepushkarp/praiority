@@ -6,12 +6,23 @@ import example from "../examples/tasks.json"
 
 export const postPrompt = async(payload)=>{
     let response = example 
-    // let response = await client('/prompts', {baseURL:"base",method: 'POST', data: payload})
+    // let response = await client('/create_tasks', {baseURL:"base",method: 'POST', data: payload})
     // if(response.status=== 200){
-    //     return await   response.data
+    //     let data_to_send =  await  response.data
+    //     return {
+    //         status:true,
+    //         data:data_to_send
+    //     }
     // }
     // else{
     //     toast.error(response.data.message)
+    //     return {
+    //         status: false,
+    //         data:example
+    //     }
     // }
-    return response
+    return {
+        status:true,
+        data:response
+    }
 }
