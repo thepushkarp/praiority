@@ -32,9 +32,8 @@ class TokenData(BaseModel):
     email: str = None
     
 
-
-def _get_user(email: str):
-    conn = database.get_db_connection()
+async def _get_user(email: str):
+    conn = await database.get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT id, email, password FROM users WHERE email = ?', (email,))
     row = cursor.fetchone()
@@ -43,8 +42,8 @@ def _get_user(email: str):
     if row is not None:
         return User(id=row[0], email=row[1], password=row[2])
 
-def _authenticate_user(email: str, password: str):
-    user = _get_user(email)
+async def _authenticate_user(email: str, password: str):
+    user = await _get_user(email)
     if not user:
         return False
     if not pwd_context.verify(password, user.password):
@@ -59,7 +58,7 @@ def _create_access_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 async def signup(user: NewUser):
-    conn = database.get_db_connection()
+    conn = await database.get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL);')
@@ -73,7 +72,7 @@ async def signup(user: NewUser):
     return {"message": "User created"}
 
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = _authenticate_user(form_data.username, form_data.password)
+    user = await _authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -91,7 +90,7 @@ async def _get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(email=email)
     except :
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    user = _get_user(token_data.email)
+    user = await _get_user(token_data.email)
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
     return user
