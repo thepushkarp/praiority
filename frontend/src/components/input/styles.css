@@ -1,0 +1,26 @@
+.input{
+    display: block;
+    width: 80%;
+    min-height: 2rem;
+    resize: none;
+    padding: 0.5rem 1rem;
+    border: none;
+    outline: none;
+    border-radius: 2rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--primary-color);
+    background-color: var(--primary-color-500);
+    background-clip: padding-box;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; 
+    box-shadow: rgba(var(--primary-color-500), 0.2) 0px 8px 24px;
+}
+
+
+
+@media screen and (min-width: 768px) {
+    .input{
+        width: 95%;
+        margin: 0 auto;
+    }
+}

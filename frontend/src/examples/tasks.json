@@ -1,0 +1,164 @@
+[
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "9:00 AM - 10:00 AM",
+		"is_accepted":true,
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Rinse dishes",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Medium"
+			},
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Fill watering can",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Low"
+			}
+		]
+	},
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "10:00 AM - 11:00 AM",
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Apply soap and scrub",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "5",
+				"task_priority": "High"
+			},
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Water plants",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "5",
+				"task_priority": "High"
+			}
+		]
+	},
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "11:00 AM - 12:00 PM",
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Rinse with water",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Medium"
+			},
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Refill watering can",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Low"
+			}
+		]
+	},
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "12:00 PM - 1:00 PM",
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Decide on topic",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "5",
+				"task_priority": "Medium"
+			},
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Initiate conversation",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "High"
+			}
+		]
+	},
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "1:00 PM - 2:00 PM",
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Listen and respond",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "30",
+				"task_priority": "High"
+			}
+		]
+	},
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "2:00 PM - 3:00 PM",
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "End conversation",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Medium"
+			},
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Finish work or tasks",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "30",
+				"task_priority": "High"
+			}
+		]
+	},
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "3:00 PM - 4:00 PM",
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Brush teeth",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Medium"
+			},
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Change into pajamas",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Low"
+			}
+		]
+	},
+	{
+		"task_id": 0,
+		"user_id": 0,
+		"slot_time": "10:00 PM - 11:00 PM",
+		"task_details": [
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Set alarm",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Low"
+			},
+			{
+				"task_detail_id": 0,
+				"task_detail_name": "Get into bed",
+				"is_completed": false,
+				"task_time_estimate_in_minutes": "2",
+				"task_priority": "Medium"
+			}
+		]
+	}
+]
