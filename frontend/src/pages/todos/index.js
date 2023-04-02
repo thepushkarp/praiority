@@ -3,6 +3,8 @@ import EmptyComponent from '../../components/emptyComponent'
 import TodoList from '../../components/todo'
 import { getTodos } from '../../handlers/todo.handler'
 
+import "./styles.css"
+
 function Todo() {
     const [todos,setTodos] = useState([])
 
@@ -13,18 +15,16 @@ function Todo() {
     const fetchTodos = async()=>{
         let tasks = await getTodos()
         setTodos(tasks)
-        console.log(tasks)
     }
 
     const updateTodo = ()=>{
         console.log('updated todos')
     }
   return (
-    <div className='todo header'>
+    <div >
         {todos.length > 0 ?(<div className='todo-container'>
-        <h1>Your Todos</h1>
+        <h1 className='header'>Your Todos</h1>
             {todos.map((todo)=>{
-                console.log(todos.length)
                 return(
                     <TodoList prompt={todo} updateState={updateTodo} ></TodoList>
                 )})

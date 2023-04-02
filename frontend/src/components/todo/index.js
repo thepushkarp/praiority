@@ -4,15 +4,15 @@ import Input from '../input'
 function TodoList({prompt,updateState}) {
     const toggleCheckbox = (e, id) => {
         let temp_prompts = { ...prompt }
-        temp_prompts.task_details.filter((item) => item.task_detail_id === id)[0].is_completed = e.target.checked
+        temp_prompts.sub_tasks.filter((item) => item.sub_task_id === id)[0].is_completed = e.target.checked
         // setPrompt(temp_prompts)
         if(updateState){
             updateState(temp_prompts)
         }
-        console.log(e.target.checked)
     }
   return (
-      <>
+      prompt?.sub_tasks?.length> 0 ? (
+      <div>
           <div className='tile-header'>
               <h3>{prompt?.task_name}</h3>
               <h3>{prompt?.slot_time}</h3>
@@ -40,18 +40,22 @@ function TodoList({prompt,updateState}) {
                   </h3>
               </div>
           </div>
-          {prompt?.task_details?.map((item, key) => {
+          {prompt?.sub_tasks?.map((item, key) => {
               return (
                   <div className='card-grid-row' key={key}>
-                      <Input type={"checkbox"} checked={item?.is_completed} onChange={(e) => toggleCheckbox(e, item.task_detail_id)}></Input>
-                      <span>{item?.task_time_estimate_in_minutes} min.</span>
-                      <span>{item?.task_detail_name}</span>
-                      <span>{item?.task_priority}</span>
+                      <Input type={"checkbox"} checked={item?.is_completed} onChange={(e) => toggleCheckbox(e, item.sub_task_id)}></Input>
+                      <span>{item?.task_priority} min.</span>
+                      <span>{item?.sub_task_name}</span>
+                      <span>{item?.task_time_estimate_in_minutes}</span>
                   </div>
               )
           })
           }
-      </>
+      </div>
+      ):(
+            null
+      )
+      
   )
 }
 

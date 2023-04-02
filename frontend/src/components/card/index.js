@@ -1,48 +1,50 @@
 import {useEffect,useState} from 'react'
-import { postPrompt } from '../../handlers/prompts.handlers'
+import { postPrompt, updateSubTask, updateTask } from '../../handlers/prompts.handlers'
 import Input from '../input'
+import Loader from '../loader'
 import TodoList from '../todo'
 
 import "./styles.css"
 
 function Card(props) {
   const [prompt,setPrompt] = useState([])
+  const [loading,setLoading] = useState(false)
   useEffect(()=>{
     let temp_data = {...props.data}
-    temp_data.task_details = temp_data.task_details.map((item)=>{
-      return {
-        ...item,
-        checked:true
-      }})
-      console.log(temp_data,"hsadksab")
     setPrompt(temp_data)
+    console.log(temp_data)
   },[props.data])
  
-  const toggleCheckbox = (e, id) => {
-    let temp_prompts = { ...prompt }
-    temp_prompts.task_details.filter((item) => item.task_detail_id === id)[0].is_completed = e.target.checked
-    setPrompt(temp_prompts)
-    console.log(e.target.checked)
-  }
+
   const handleInputChange = (e,id)=>{
-    console.log(e.target.value,id,prompt)
     let temp_prompts = {...prompt}
-    temp_prompts.task_details.filter((item)=>item.task_detail_id===id)[0].task_detail_name = e.target.value
+    temp_prompts.sub_tasks.filter((item)=>item.sub_task_id===id)[0].sub_task_name = e.target.value
     setPrompt(temp_prompts)
   }
 
   const deleteSubtask = (id)=>{
     let temp_prompts = {...prompt}
-    temp_prompts.task_details = temp_prompts.task_details.filter((item) => item.task_detail_id !==id)
+    temp_prompts.sub_tasks = temp_prompts.sub_tasks.filter((item) => item.sub_task_id !==id)
     setPrompt(temp_prompts)
   }
 
-  const submitTask = ()=>{
-    console.log(prompt,"submit")
+  const submitTask = async()=>{
+    setLoading(true)
+    let temp_prompts = {...prompt}
+    temp_prompts.is_accepted = true
+    await Promise.all(temp_prompts.sub_tasks.map(async (item) => {
+      await updateSubTask({...item })
+    }))
+    await updateTask({ ...temp_prompts })
+   
+    setPrompt(temp_prompts)
+    setLoading(false)
   }
   const regenerateTask = async ()=>{
-    console.log(prompt, "regenerate")
-    const regenerated_task = await postPrompt({ requested_tasks: prompt.task_details.map((item)=>item.task_detail_name) })
+    setLoading(true)
+    const regenerated_task = await postPrompt({ requested_tasks: [prompt.task_name] })
+    setLoading(false)
+    setPrompt(regenerated_task.data[0])
   }
   const renderTaskList = ()=>{
     return (
@@ -55,11 +57,11 @@ function Card(props) {
           </div>
         </div>
         
-          {prompt?.task_details?.map((item) => {
+          {prompt?.sub_tasks?.map((item) => {
             return (
-              <div className='list-item' id={item.task_detail_id}>
-                <Input value={item?.task_detail_name} onChange={(e) => handleInputChange(e, item.task_detail_id)}></Input>
-                <div className='tile-actions' onClick={(e) => deleteSubtask(item.task_detail_id)}>
+              <div className='list-item' id={item.sub_task_id}>
+                <Input value={item?.sub_task_name} onChange={(e) => handleInputChange(e, item.sub_task_id)}></Input>
+                <div className='tile-actions' onClick={(e) => deleteSubtask(item.sub_task_id)}>
                   <img src='/icons/trash.svg' alt='delete'></img>
                 </div>
               </div>
@@ -99,24 +101,25 @@ function Card(props) {
       //       </h3>
       //     </div>
       //   </div>
-      //   {prompt?.task_details?.map((item, key) => {
+      //   {prompt?.sub_tasks?.map((item, key) => {
       //     return (
       //       <div className='card-grid-row' key={key}>
-      //         <Input type={"checkbox"} checked= {item?.is_completed} onChange={(e) => toggleCheckbox(e, item.task_detail_id)}></Input>
+      //         <Input type={"checkbox"} checked= {item?.is_completed} onChange={(e) => toggleCheckbox(e, item.sub_task_id)}></Input>
       //         <span>{item?.task_time_estimate_in_minutes} min.</span>
-      //         <span>{item?.task_detail_name}</span>
+      //         <span>{item?.sub_task_name}</span>
       //         <span>{item?.task_priority}</span>
       //       </div>
       //     )
       //   })
       //   }
       // </>
-      <TodoList prompt={prompt} updateState = {setPrompt}></TodoList>
+      <TodoList prompt={prompt} updateState={setPrompt}></TodoList>
     )
   }
   return (
     <div className='card-container'>
-      {props.taskList ? renderFormattedTasks() : renderTaskList()}
+      {loading ? <Loader/> : null}
+      {!loading && props.taskList ? renderFormattedTasks() : renderTaskList()}
     </div>
   )
 }
