@@ -13,6 +13,6 @@ Using GPT, praiority helps these people break down their tasks and focus on one 
 
 ## Builders
 
-- Anvay Mishra
-- Ashutosh Singh
-- Pushkar Patel
+- [Anvay Mishra](https://github.com/anvaymishra1)
+- [Ashutosh Singh](https://github.com/thecodepapaya)
+- [Pushkar Patel](https://github.com/thepushkarp)
