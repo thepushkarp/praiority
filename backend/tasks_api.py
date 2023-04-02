@@ -4,7 +4,7 @@ from typing import Annotated, List, Union
 import database
 import openai
 import user_auth_api
-from fastapi import Response, status
+from fastapi import HTTPException, Response, status
 from pydantic import BaseModel
 
 with open('../config.json') as f:    
@@ -381,127 +381,6 @@ def _parse_scheduled_tasks(tasks_output: str) -> List[TimeSlot]:
 
 
 
-
-_generated_tasks = """
-Task: Wash utensils
-Mini Atomic Task | Time Estimate | Priority Level |
-Wash dishes | 10 | High |
-Dry dishes and put them away | 5 | Medium |
-
-Task: Water plants
-Mini Atomic Task | Time Estimate | Priority Level |
-Gather watering can and fill with water | 5 | Low |
-Water plants | 10 | High |
-Clean up any spills | 5 | Low |
-
-Task: Talk to family
-Mini Atomic Task | Time Estimate | Priority Level |
-Decide on topic of conversation | 5 | Low |
-Initiate conversation | 5 | High |
-Listen actively and respond appropriately | 30 | High |
-
-Task: Go to bed timely
-Mini Atomic Task | Time Estimate | Priority Level |
-Finish any pending work | 30 | High |
-Put away any distractions | 5 | Medium |
-Brush teeth and change into comfortable clothes | 10 | High |
-Set alarm for next day | 5 | Medium |
-Get into bed and relax | 20 | High |
-Sleep | 360 | High |
-
-Note: Time estimates and priority levels can vary based on individual needs and preferences. It is important to work with the person to create a personalized plan that works best for them.
-"""
-
-_scheduled_tasks = """
-Time Slot: 8:00 AM - 9:00 AM
-Check bank balance | 5 | High |
-
-Time Slot: 9:00 AM - 10:00 AM
-Fill watering can | 2 | Medium |
-Water plants | 10 | High |
-Clean up spilled water | 3 | Low |
-
-Time Slot: 10:00 AM - 11:00 AM
-Decide who to call | 5 | Medium |
-Make phone call | 15 | High |
-Listen to family member | 20 | High |
-Take notes if necessary | 5 | Medium |
-
-Time Slot: 11:00 AM - 12:00 PM
-Withdraw cash | 10 | High |
-Go to broker's office | 15 | High |
-Pay rent | 5 | High |
-
-Time Slot: 12:00 PM - 1:00 PM
-Lunch Break
-
-Time Slot: 1:00 PM - 2:00 PM
-Set alarm | 2 | High |
-Brush teeth | 5 | High |
-Change into pajamas | 2 | Medium |
-
-Time Slot: 2:00 PM - 3:00 PM
-Read for 20 minutes | 20 | Medium |
-
-Time Slot: 3:00 PM - 4:00 PM
-Break
-
-Time Slot: 4:00 PM - 5:00 PM
-Check bank balance | 5 | High |
-
-Time Slot: 5:00 PM - 6:00 PM
-Fill watering can | 2 | Medium |
-Water plants | 10 | High |
-Clean up spilled water | 3 | Low |
-
-Time Slot: 6:00 PM - 7:00 PM
-Break
-
-Time Slot: 7:00 PM - 8:00 PM
-Decide who to call | 5 | Medium |
-Make phone call | 15 | High |
-Listen to family member | 20 | High |
-Take notes if necessary | 5 | Medium |
-
-Time Slot: 8:00 PM - 9:00 PM
-Read for 20 minutes | 20 | Medium |
-
-Time Slot: 9:00 PM - 10:00 PM
-Turn off lights | 2 | High |
-
-Note: The time slots can be adjusted as per the individual's preference and availability."""
-
-
-# async def get_tasks(current_user:user_auth_api.User):
-#     conn = database.get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
-#     row = cursor.fetchone()
-#     conn.close()
-
-#     if row is not None:
-#         return TaskEntity(task_id=row[0], task_name=row[1])
-    
-# async def get_task_entity(current_user:user_auth_api.User):
-#     conn = database.get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
-#     row = cursor.fetchone()
-#     conn.close()
-
-#     if row is not None:
-#         return User(id=row[0], email=row[1], password=row[2])
-
-# async def get_task_detail_entity(current_user:user_auth_api.User):
-#     pass
-
-
-
-from fastapi import HTTPException
-
-
-
-
 # Get SubTask by ID
 async def get_subtask(sub_task_id: int) -> SubTask:
     conn = await database.get_db_connection()
@@ -604,3 +483,131 @@ async def delete_task_from_db(task_id: int):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM task WHERE task_id = ?", (task_id,))
     conn.commit()
+
+# Get task list for user
+async def get_tasks_for_user(current_user:user_auth_api.User) -> List[Task]:
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM task WHERE user_id = ?", (current_user.id,))
+    rows = cursor.fetchall()
+    tasks = []
+    for row in rows:
+        sub_tasks = await get_subtasks_for_task(row[0])
+        task = Task(
+            task_id=row[0],
+            user_id=row[1],
+            task_name=row[2],
+            sub_tasks=sub_tasks,
+        )
+        tasks.append(task)
+    return tasks
+
+
+
+async def get_subtasks_for_parent(parent_task_id: int) -> List[SubTask]:
+    conn = await database.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM sub_tasks WHERE parent_task_id = ?", (parent_task_id,))
+    rows = cursor.fetchall()
+    sub_tasks = []
+    for row in rows:
+        sub_task = SubTask(
+            sub_task_id=row[0],
+            parent_task_id=row[1],
+            sub_task_name=row[2],
+            is_completed=bool(row[3]),
+            is_accepted=bool(row[4]),
+            task_time_estimate_in_minutes=row[5],
+            task_priority=row[6],
+        )
+        sub_tasks.append(sub_task)
+    return sub_tasks
+
+_generated_tasks = """
+Task: Wash utensils
+Mini Atomic Task | Time Estimate | Priority Level |
+Wash dishes | 10 | High |
+Dry dishes and put them away | 5 | Medium |
+
+Task: Water plants
+Mini Atomic Task | Time Estimate | Priority Level |
+Gather watering can and fill with water | 5 | Low |
+Water plants | 10 | High |
+Clean up any spills | 5 | Low |
+
+Task: Talk to family
+Mini Atomic Task | Time Estimate | Priority Level |
+Decide on topic of conversation | 5 | Low |
+Initiate conversation | 5 | High |
+Listen actively and respond appropriately | 30 | High |
+
+Task: Go to bed timely
+Mini Atomic Task | Time Estimate | Priority Level |
+Finish any pending work | 30 | High |
+Put away any distractions | 5 | Medium |
+Brush teeth and change into comfortable clothes | 10 | High |
+Set alarm for next day | 5 | Medium |
+Get into bed and relax | 20 | High |
+Sleep | 360 | High |
+
+Note: Time estimates and priority levels can vary based on individual needs and preferences. It is important to work with the person to create a personalized plan that works best for them.
+"""
+
+_scheduled_tasks = """
+Time Slot: 8:00 AM - 9:00 AM
+Check bank balance | 5 | High |
+
+Time Slot: 9:00 AM - 10:00 AM
+Fill watering can | 2 | Medium |
+Water plants | 10 | High |
+Clean up spilled water | 3 | Low |
+
+Time Slot: 10:00 AM - 11:00 AM
+Decide who to call | 5 | Medium |
+Make phone call | 15 | High |
+Listen to family member | 20 | High |
+Take notes if necessary | 5 | Medium |
+
+Time Slot: 11:00 AM - 12:00 PM
+Withdraw cash | 10 | High |
+Go to broker's office | 15 | High |
+Pay rent | 5 | High |
+
+Time Slot: 12:00 PM - 1:00 PM
+Lunch Break
+
+Time Slot: 1:00 PM - 2:00 PM
+Set alarm | 2 | High |
+Brush teeth | 5 | High |
+Change into pajamas | 2 | Medium |
+
+Time Slot: 2:00 PM - 3:00 PM
+Read for 20 minutes | 20 | Medium |
+
+Time Slot: 3:00 PM - 4:00 PM
+Break
+
+Time Slot: 4:00 PM - 5:00 PM
+Check bank balance | 5 | High |
+
+Time Slot: 5:00 PM - 6:00 PM
+Fill watering can | 2 | Medium |
+Water plants | 10 | High |
+Clean up spilled water | 3 | Low |
+
+Time Slot: 6:00 PM - 7:00 PM
+Break
+
+Time Slot: 7:00 PM - 8:00 PM
+Decide who to call | 5 | Medium |
+Make phone call | 15 | High |
+Listen to family member | 20 | High |
+Take notes if necessary | 5 | Medium |
+
+Time Slot: 8:00 PM - 9:00 PM
+Read for 20 minutes | 20 | Medium |
+
+Time Slot: 9:00 PM - 10:00 PM
+Turn off lights | 2 | High |
+
+Note: The time slots can be adjusted as per the individual's preference and availability."""
