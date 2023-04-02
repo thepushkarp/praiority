@@ -7,7 +7,7 @@ import user_auth_api
 from fastapi import HTTPException, Response, status
 from pydantic import BaseModel
 
-with open('../config.json') as f:    
+with open('./config.json') as f:    
     config = json.load(f)
 
 
@@ -384,9 +384,9 @@ async def get_subtask(sub_task_id: int) -> SubTask:
             sub_task_id=row[0],
             parent_task_id=row[1],
             sub_task_name=row[2],
-            is_completed=bool(row[3]),
-            task_time_estimate_in_minutes=row[4],
-            task_priority=row[5],
+            task_time_estimate_in_minutes=row[3],
+            task_priority=row[4],
+            is_completed=bool(row[5]),
         )
         return sub_task
     return None
@@ -447,9 +447,9 @@ async def get_subtasks_for_task(task_id: int) -> List[SubTask]:
             sub_task_id=row[0],
             parent_task_id=row[1],
             sub_task_name=row[2],
-            is_completed=bool(row[3]),
-            task_time_estimate_in_minutes=row[4],
-            task_priority=row[5],
+            task_time_estimate_in_minutes=row[3],
+            task_priority=row[4],
+            is_completed=bool(row[5]),
         )
 
         sub_tasks.append(sub_task)
@@ -506,9 +506,9 @@ async def get_subtasks_for_parent(parent_task_id: int) -> List[SubTask]:
             sub_task_id=row[0],
             parent_task_id=row[1],
             sub_task_name=row[2],
-            is_completed=bool(row[3]),
-            task_time_estimate_in_minutes=row[4],
-            task_priority=row[5],
+            task_time_estimate_in_minutes=row[3],
+            task_priority=row[4],
+            is_completed=bool(row[5]),
         )
         sub_tasks.append(sub_task)
     return sub_tasks
