@@ -21,11 +21,11 @@ const quotes = [
 
 function EmptyComponent() {
   return (
-    <div>
+    <div style={{display:"flex","alignItems":"center","justifyContent":"center"}}>
         <h3>Here's an interesting fact!</h3>
-        <p>
+        
               <h2>{quotes[Math.floor(Math.random() * 15)]}</h2>
-        </p>
+        
     </div>
   )
 }

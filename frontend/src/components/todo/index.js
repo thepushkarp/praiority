@@ -44,9 +44,9 @@ function TodoList({prompt,updateState}) {
               return (
                   <div className='card-grid-row' key={key}>
                       <Input type={"checkbox"} checked={item?.is_completed} onChange={(e) => toggleCheckbox(e, item.sub_task_id)}></Input>
-                      <span>{item?.task_priority} min.</span>
+                      <span>{item?.task_time_estimate_in_minutes} min.</span>
                       <span>{item?.sub_task_name}</span>
-                      <span>{item?.task_time_estimate_in_minutes}</span>
+                      <span>{item?.task_priority}</span>
                   </div>
               )
           })
