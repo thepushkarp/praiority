@@ -19,7 +19,6 @@ class SubTask(BaseModel):
     parent_task_id: int
     sub_task_name: str
     is_completed: bool = False
-    is_accepted: bool = True
     task_time_estimate_in_minutes: str
     task_priority: str
 
@@ -27,6 +26,7 @@ class Task(BaseModel):
     task_id: int
     user_id: int
     task_name: str
+    is_accepted: bool = True
     sub_tasks: List[SubTask] = []
 
 class TimeSlot(BaseModel):
@@ -75,12 +75,13 @@ async def _put_tasks_in_db(all_tasks_str:dict,current_user:user_auth_api.User) -
         task_name = task_str['task_name']
         user_id = int(current_user.id)
 
-        cursor.execute('INSERT INTO task (user_id, task_name) VALUES (?, ?)', (user_id, task_name))
+        cursor.execute('INSERT INTO task (user_id, task_name, is_accepted) VALUES (?, ?, ?)', (user_id, task_name, True))
         conn.commit()
 
         task = Task(
             task_id=cursor.lastrowid,
             task_name=task_name,
+            is_accepted=True,
             user_id=user_id
         )
 
@@ -384,9 +385,8 @@ async def get_subtask(sub_task_id: int) -> SubTask:
             parent_task_id=row[1],
             sub_task_name=row[2],
             is_completed=bool(row[3]),
-            is_accepted=bool(row[4]),
-            task_time_estimate_in_minutes=row[5],
-            task_priority=row[6],
+            task_time_estimate_in_minutes=row[4],
+            task_priority=row[5],
         )
         return sub_task
     return None
@@ -396,12 +396,11 @@ async def update_subtask_in_db(sub_task_id: int, sub_task: SubTask):
     conn = await database.get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "UPDATE sub_tasks SET parent_task_id = ?, sub_task_name = ?, is_completed = ?, is_accepted = ?, task_time_estimate_in_minutes = ?, task_priority = ? WHERE sub_task_id = ?",
+        "UPDATE sub_tasks SET parent_task_id = ?, sub_task_name = ?, is_completed = ?, task_time_estimate_in_minutes = ?, task_priority = ? WHERE sub_task_id = ?",
         (
             sub_task.parent_task_id,
             sub_task.sub_task_name,
             sub_task.is_completed,
-            sub_task.is_accepted,
             sub_task.task_time_estimate_in_minutes,
             sub_task.task_priority,
             sub_task_id,
@@ -428,6 +427,7 @@ async def get_task(task_id: int) -> Task:
             task_id=row[0],
             user_id=row[1],
             task_name=row[2],
+            is_accepted=row[3],
             sub_tasks=sub_tasks,
         )
         return task
@@ -448,9 +448,8 @@ async def get_subtasks_for_task(task_id: int) -> List[SubTask]:
             parent_task_id=row[1],
             sub_task_name=row[2],
             is_completed=bool(row[3]),
-            is_accepted=bool(row[4]),
-            task_time_estimate_in_minutes=row[5],
-            task_priority=row[6],
+            task_time_estimate_in_minutes=row[4],
+            task_priority=row[5],
         )
 
         sub_tasks.append(sub_task)
@@ -461,8 +460,8 @@ async def update_task_in_db(task_id: int, task: Task):
     conn = await database.get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "UPDATE task SET user_id = ?, task_name = ? WHERE task_id = ?",
-        (task.user_id, task.task_name, task_id),
+        "UPDATE task SET user_id = ?, task_name = ?, is_accepted = ? WHERE task_id = ?",
+        (task.user_id, task.task_name, task.is_accepted, task_id),
     )
     conn.commit()
     for sub_task in task.sub_tasks:
@@ -488,6 +487,7 @@ async def get_tasks_for_user(current_user:user_auth_api.User) -> List[Task]:
             task_id=row[0],
             user_id=row[1],
             task_name=row[2],
+            is_accepted=row[3],
             sub_tasks=sub_tasks,
         )
         tasks.append(task)
@@ -507,9 +507,8 @@ async def get_subtasks_for_parent(parent_task_id: int) -> List[SubTask]:
             parent_task_id=row[1],
             sub_task_name=row[2],
             is_completed=bool(row[3]),
-            is_accepted=bool(row[4]),
-            task_time_estimate_in_minutes=row[5],
-            task_priority=row[6],
+            task_time_estimate_in_minutes=row[4],
+            task_priority=row[5],
         )
         sub_tasks.append(sub_task)
     return sub_tasks
