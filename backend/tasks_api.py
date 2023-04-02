@@ -14,11 +14,12 @@ with open('../config.json') as f:
 class UserRequestedTasks(BaseModel):
     requested_tasks: List[str]
 
-class TaskDetails(BaseModel):
-    task_detail_id: int
+class SubTask(BaseModel):
+    sub_task_id: int
     parent_task_id: int
     task_detail_name: str
     is_completed: bool = False
+    is_accepted: bool = True
     task_time_estimate_in_minutes: str
     task_priority: str
 
@@ -26,21 +27,21 @@ class Task(BaseModel):
     task_id: int = 0
     user_id: int = 0
     task_name: str
-    sub_tasks: List[TaskDetails] = []
+    sub_tasks: List[SubTask] = []
 
 class TimeSlot(BaseModel):
     task_id: int = 0
     user_id: int = 0
     slot_time: str
-    task_details: List[TaskDetails] =[]
+    task_details: List[SubTask] =[]
 
 
 
-async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> List[TaskDetails]:
+async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> List[SubTask]:
     conn = await database.get_db_connection()
     cursor = conn.cursor() 
     
-    cursor.execute('CREATE TABLE IF NOT EXISTS sub_tasks (task_detail_id INTEGER PRIMARY KEY, parent_task_id INTEGER NOT NULL, task_name TEXT NOT NULL, time_minutes TEXT NOT NULL, priority TEXT NOT NULL);')
+    cursor.execute('CREATE TABLE IF NOT EXISTS sub_tasks (task_detail_id INTEGER PRIMARY KEY, parent_task_id INTEGER NOT NULL, task_name TEXT NOT NULL, time_minutes TEXT NOT NULL, priority TEXT NOT NULL, is_completed BOOLEAN DEFAULT FALSE, is_accepted BOOLEAN DEFAULT TRUE);')
     conn.commit()
     
     sub_tasks = []
@@ -54,10 +55,9 @@ async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> Li
         cursor.execute('INSERT INTO sub_tasks (parent_task_id, task_name, time_minutes, priority) VALUES (?, ?, ?, ?)', (parent_task_id, task_name, task_time_estimate, task_priority))
         conn.commit()
 
-        sub_task = TaskDetails(
-            task_detail_id=cursor.lastrowid,
+        sub_task = SubTask(
+            sub_task_id=cursor.lastrowid,
             parent_task_id=parent_task_id,
-            is_completed=False,
             task_detail_name=task_name,
             task_time_estimate_in_minutes=task_time_estimate,
             task_priority=task_priority
@@ -67,7 +67,6 @@ async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> Li
     
     return sub_tasks
 
-        
 
 async def _put_tasks_in_db(all_tasks_str:dict,current_user:user_auth_api.User) -> List[Task]:
     conn = await database.get_db_connection()
@@ -108,37 +107,19 @@ async def _put_tasks_in_db(all_tasks_str:dict,current_user:user_auth_api.User) -
     return tasks
 
 
-    # cursor.execute('SELECT task_id, task_name FROM task_entity WHERE user_id = ?', (current_user.id,))
-#      row = cursor.fetchone()
-#      conn.close()
-    pass
-
-
-
 async def sub_tasks(tasks:UserRequestedTasks,response: Response,current_user: user_auth_api.User):
     requested_tasks_as_string = _prepare_input_tasks(tasks)
 
     try:
-
-        global _generated_tasks
         
-        # generated_tasks = await _get_generated_tasks_from_openai(requested_tasks_as_string)
+        generated_tasks = await _get_generated_tasks_from_openai(requested_tasks_as_string)
 
         # print(generated_tasks)
+        # parsed_tasks = _parse_generated_tasks(_generated_tasks)
 
-        # parsed_tasks = _parse_generated_tasks(generated_tasks)
-        parsed_tasks = _parse_generated_tasks(_generated_tasks)
+        parsed_tasks = _parse_generated_tasks(generated_tasks)
 
         tasks = await _put_tasks_in_db(parsed_tasks,current_user)
-
-        # for task in tasks:
-        #     sub_tasks = await _put_sub_tasks_in_db(task, parsed_tasks)
-
-        #     print('===============inserted sub_tasks===============')
-        #     print(sub_tasks)
-
-
-
 
         return tasks
 
@@ -313,7 +294,7 @@ def _parse_scheduled_tasks(tasks_output: str) -> List[TimeSlot]:
             current_sub_task = current_sub_task.strip()
             sub_task_name, sub_task_time_estimate, sub_task_priority,_ = current_sub_task.split("|")
 
-            sub_task = TaskDetails(
+            sub_task = SubTask(
                 task_detail_name=sub_task_name.strip(),
                 task_time_estimate_in_minutes=sub_task_time_estimate.strip(),
                 task_priority=sub_task_priority.strip(),
