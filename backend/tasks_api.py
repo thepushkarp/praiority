@@ -24,17 +24,16 @@ class SubTask(BaseModel):
     task_priority: str
 
 class Task(BaseModel):
-    task_id: int = 0
-    user_id: int = 0
+    task_id: int
+    user_id: int
     task_name: str
     sub_tasks: List[SubTask] = []
 
 class TimeSlot(BaseModel):
-    task_id: int = 0
-    user_id: int = 0
+    slot_id: int
+    user_id: int
     slot_time: str
-    task_details: List[SubTask] =[]
-
+    sub_tasks: List[SubTask] =[]
 
 
 async def _put_sub_tasks_in_db(parent_task_id:int, all_sub_tasks_str:dict) -> List[SubTask]:
@@ -107,6 +106,45 @@ async def _put_tasks_in_db(all_tasks_str:dict,current_user:user_auth_api.User) -
     return tasks
 
 
+async def _put_slots_in_db(all_slots_str:dict,current_user:user_auth_api.User) -> List[TimeSlot]:
+    conn = await database.get_db_connection()
+    cursor = conn.cursor() 
+    
+    cursor.execute('CREATE TABLE IF NOT EXISTS slot (slot_id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, slot_time TEXT NOT NULL);')
+    conn.commit()
+
+    tasks = []
+
+    for slot_str in all_slots_str:
+
+        slot_time = slot_str['slot_time']
+        user_id = int(current_user.id)
+
+        cursor.execute('INSERT INTO slot (user_id, slot_time) VALUES (?, ?)', (user_id, slot_time))
+        conn.commit()
+
+        task = TimeSlot(
+            task_id=cursor.lastrowid,
+            task_name=slot_time,
+            user_id=user_id
+        )
+
+        # sub task parsing ====================
+
+        all_sub_tasks_str = slot_str['task_details']
+
+        sub_tasks = await _put_sub_tasks_in_db(
+            all_sub_tasks_str=all_sub_tasks_str,
+            parent_task_id=task.task_id,
+        )
+
+        task.sub_tasks = sub_tasks
+
+        tasks.append(task)
+
+    return tasks
+
+
 async def sub_tasks(tasks:UserRequestedTasks,response: Response,current_user: user_auth_api.User):
     requested_tasks_as_string = _prepare_input_tasks(tasks)
 
@@ -114,15 +152,42 @@ async def sub_tasks(tasks:UserRequestedTasks,response: Response,current_user: us
         
         generated_tasks = await _get_generated_tasks_from_openai(requested_tasks_as_string)
 
-        # print(generated_tasks)
-        # parsed_tasks = _parse_generated_tasks(_generated_tasks)
-
         parsed_tasks = _parse_generated_tasks(generated_tasks)
 
         tasks = await _put_tasks_in_db(parsed_tasks,current_user)
 
         return tasks
 
+    except openai.error.Timeout as e:
+        #Handle timeout error, e.g. retry or log
+        response.status_code = status.HTTP_408_REQUEST_TIMEOUT
+        return {"details":f"OpenAI API request timed out: {e}"}
+
+    except openai.error.APIError as e:
+        #Handle API error, e.g. retry or log
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"details":f"OpenAI API returned an API Error: {e}"}
+        
+    except openai.error.APIConnectionError as e:
+        #Handle connection error, e.g. check network or log
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"details":f"OpenAI API request failed to connect: {e}"}
+        
+    except openai.error.InvalidRequestError as e:
+        #Handle invalid request error, e.g. validate parameters or log
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {"details":f"OpenAI API request was invalid: {e}"}
+        
+    except openai.error.AuthenticationError as e:
+        #Handle authentication error, e.g. check credentials or log
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"details":f"OpenAI API request was not authorized: {e}"}
+        
+    except openai.error.PermissionError as e:
+        #Handle permission error, e.g. check scope or log
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {"details":f"OpenAI API request was not permitted: {e}"}
+        
     except openai.error.RateLimitError as e:
         #Handle rate limit error, e.g. wait or log
         response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
@@ -134,12 +199,16 @@ async def create_tasks(tasks:UserRequestedTasks,response: Response,current_user:
 
     try:
         
-        generated_tasks = await _get_generated_tasks_from_openai(requested_tasks_as_string)
-        scheduled_tasks = await _get_scheduled_tasks_from_openai(generated_tasks)
+        # generated_tasks = await _get_generated_tasks_from_openai(requested_tasks_as_string)
+        # scheduled_tasks = await _get_scheduled_tasks_from_openai(generated_tasks)
 
-        parsed_tasks = _parse_scheduled_tasks(scheduled_tasks)
+        global _scheduled_tasks
+        parsed_tasks = _parse_scheduled_tasks(_scheduled_tasks)
+        # parsed_tasks = _parse_scheduled_tasks(scheduled_tasks)
 
-        return parsed_tasks
+        slots = _put_slots_in_db(parsed_tasks,current_user)
+
+        return slots
 
     except openai.error.Timeout as e:
         #Handle timeout error, e.g. retry or log
@@ -176,8 +245,6 @@ async def create_tasks(tasks:UserRequestedTasks,response: Response,current_user:
         response.status_code = status.HTTP_429_TOO_MANY_REQUESTS
         return {"details":f"OpenAI API request exceeded rate limit: {e}"}
         
-
-
 
 async def _get_generated_tasks_from_openai(tasks:str):
     prompts = config["prompts"]
@@ -305,17 +372,12 @@ def _parse_scheduled_tasks(tasks_output: str) -> List[TimeSlot]:
 
         current_slot = TimeSlot(
             slot_time=slot_time,
-            task_details=sub_tasks
+            sub_tasks=sub_tasks
         )
 
         available_slots.append(current_slot)
 
     return available_slots
-
-
-async def _save_tasks_to_DB():
-    pass
-
 
 
 
