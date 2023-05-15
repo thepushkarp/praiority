@@ -1,6 +1,7 @@
-import AppRouter from './routes';
+import React from 'react';
 import './App.css';
 import Header from './components/header';
+import AppRouter from './routes';
 
 function App() {
   return (

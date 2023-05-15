@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Input from '../../components/input';
 import { loginHandler } from '../../handlers/auth.handler';
 
@@ -7,7 +7,7 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleLogin = async () => {
     let payload = new FormData();
     payload.append('username', username);
     payload.append('password', password);

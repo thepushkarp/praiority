@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Input from '../../components/input';
 import { signupHandler } from '../../handlers/auth.handler';
 
@@ -6,7 +6,7 @@ function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleLogin = async () => {
     let payload = {
       email: username,
       password: password,

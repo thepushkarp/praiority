@@ -1,5 +1,6 @@
 import React from 'react';
 import Input from '../input';
+import PropTypes from 'prop-types';
 
 function TodoList({ prompt, updateState }) {
   const toggleCheckbox = (e, id) => {
@@ -50,5 +51,10 @@ function TodoList({ prompt, updateState }) {
     </div>
   ) : null;
 }
+
+TodoList.propTypes = {
+  prompt: PropTypes.object,
+  updateState: PropTypes.func,
+};
 
 export default TodoList;

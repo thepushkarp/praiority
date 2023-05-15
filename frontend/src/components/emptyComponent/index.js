@@ -29,7 +29,7 @@ function EmptyComponent() {
         justifyContent: 'center',
       }}
     >
-      <h3>Here's an interesting fact!</h3>
+      <h3>Here&apos;s an interesting fact!</h3>
 
       <h2>{quotes[Math.floor(Math.random() * 15)]}</h2>
     </div>

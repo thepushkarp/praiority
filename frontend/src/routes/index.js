@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 import Home from '../pages/home';
 import Login from '../pages/login';
 import Panchayat from '../pages/panchayat';

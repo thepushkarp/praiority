@@ -2,8 +2,6 @@ import { toast } from 'react-toastify';
 
 import { client } from './axiosInstance';
 
-import example from '../examples/tasks.json';
-
 export const loginHandler = async (payload) => {
   // let response = example
   let response = await client('/login', {

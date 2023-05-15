@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import EmptyComponent from '../../components/emptyComponent';
 import TodoList from '../../components/todo';
 import { getTodos } from '../../handlers/todo.handler';
@@ -26,7 +26,13 @@ function Todo() {
         <div className='todo-container'>
           <h1 className='header'>Your Todos</h1>
           {todos.map((todo) => {
-            return <TodoList prompt={todo} updateState={updateTodo}></TodoList>;
+            return (
+              <TodoList
+                key={todo}
+                prompt={todo}
+                updateState={updateTodo}
+              ></TodoList>
+            );
           })}
         </div>
       ) : (

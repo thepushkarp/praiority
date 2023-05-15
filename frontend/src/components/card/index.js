@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   postPrompt,
   updateSubTask,
@@ -74,14 +74,18 @@ function Card(props) {
 
         {prompt?.sub_tasks?.map((item) => {
           return (
-            <div className='list-item' id={item.sub_task_id}>
+            <div
+              className='list-item'
+              key={item.sub_task_id}
+              id={item.sub_task_id}
+            >
               <Input
                 value={item?.sub_task_name}
                 onChange={(e) => handleInputChange(e, item.sub_task_id)}
               ></Input>
               <div
                 className='tile-actions'
-                onClick={(e) => deleteSubtask(item.sub_task_id)}
+                onClick={() => deleteSubtask(item.sub_task_id)}
               >
                 <img src='/icons/trash.svg' alt='delete'></img>
               </div>
@@ -145,5 +149,9 @@ function Card(props) {
     </div>
   );
 }
+
+Card.propTypes = {
+  data: {},
+};
 
 export default Card;

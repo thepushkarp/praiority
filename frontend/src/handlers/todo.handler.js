@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 
 import { client } from './axiosInstance';
 
-export const getTodos = async (payload) => {
+export const getTodos = async () => {
   let response = await client('/tasks', { baseURL: 'base', method: 'GET' });
   try {
     if (response?.status === 200) {
