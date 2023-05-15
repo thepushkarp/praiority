@@ -24,7 +24,7 @@ const quotes = [
 
 function Home() {
   const gotoPrompts = () => {
-    window.location.href = '/panchayat';
+    window.location.href = '/add-tasks';
   };
 
   const gotoLogin = () => {

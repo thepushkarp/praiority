@@ -8,7 +8,7 @@ function Header() {
         <a href='/'>Home</a>
       </button>
       <button>
-        <a href='/panchayat'>Add Tasks</a>
+        <a href='/add-tasks'>Add Tasks</a>
       </button>
       <button>
         <a href='/todos'>My Tasks</a>

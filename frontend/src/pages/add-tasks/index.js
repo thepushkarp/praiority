@@ -5,7 +5,7 @@ import Loader from '../../components/loader';
 import { postPrompt } from '../../handlers/prompts.handlers';
 
 import './styles.css';
-function Panchayat() {
+function AddTasks() {
   const [prompts, setPrompts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState('');
@@ -25,7 +25,7 @@ function Panchayat() {
     }
   };
   return (
-    <div className='panchayat-page'>
+    <div className='add-tasks-page'>
       <div className='prompts-container'>
         {loading ? (
           <Loader></Loader>
@@ -57,4 +57,4 @@ function Panchayat() {
   );
 }
 
-export default Panchayat;
+export default AddTasks;
