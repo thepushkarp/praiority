@@ -23,7 +23,7 @@ const quotes = [
 ];
 
 function Home() {
-  const gotoPromts = () => {
+  const gotoPrompts = () => {
     window.location.href = '/panchayat';
   };
 
@@ -44,7 +44,7 @@ function Home() {
         </div>
 
         <div className='homepage-text'>
-          <button onClick={gotoPromts} className='chat-btn'>
+          <button onClick={gotoPrompts} className='chat-btn'>
             Add Tasks
           </button>
           <h1>{'Complete your tasks, one at a time'}</h1>
