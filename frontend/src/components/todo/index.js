@@ -1,6 +1,6 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import Input from '../input';
-import PropTypes from 'prop-types';
 
 function TodoList({ prompt, updateState }) {
   const toggleCheckbox = (e, id) => {
