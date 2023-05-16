@@ -10,9 +10,6 @@ function Header() {
       <button>
         <a href='/add-tasks'>Add Tasks</a>
       </button>
-      <button>
-        <a href='/todos'>My Tasks</a>
-      </button>
     </div>
   );
 }
