@@ -6,9 +6,10 @@ People with ADHD and executive dysfunction face overwhelming feelings and diffic
 
 Using GPT, praiority helps these people break down their tasks and focus on one step at a time, which can help reduce anxiety and stress associated with feeling overwhelmed. praiority can also help individuals with ADHD and executive dysfunction to improve their time management skills and increase productivity by providing a clear roadmap for completing tasks.
 
+Devfolio SUbmission Link: https://devfolio.co/projects/praiority-0297
+
 ## Tech Stack
 - React.js
-- FastAPI
 - GPT
 
 ## Builders
