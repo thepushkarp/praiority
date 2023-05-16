@@ -30,7 +30,7 @@ export const client = (url, { baseURL = 'base', ...options } = {}) => {
     (error) => {
       if (error?.response?.status === 401) {
         localStorage.clear();
-        window.location.href = '/login';
+        window.location.href = '/';
         toast.error(error.response.data.message);
       } else {
         return Promise.reject(error);

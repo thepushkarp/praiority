@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import './styles.css';
 
@@ -23,18 +23,18 @@ const quotes = [
 ];
 
 function Home() {
+  const [isOpenaiTokenSet, setIsOpenaiTokenSet] = React.useState(false);
+
+  useEffect(() => {
+    let token = localStorage.getItem('openai-token');
+    if (token) {
+      setIsOpenaiTokenSet(true);
+    }
+  }, [isOpenaiTokenSet]);
+
   const gotoPrompts = () => {
     window.location.href = '/add-tasks';
   };
-
-  const gotoLogin = () => {
-    window.location.href = '/login';
-  };
-
-  let token = localStorage.getItem('token');
-  if (!token) {
-    gotoLogin();
-  }
 
   return (
     <div className='homepage-container'>
@@ -44,8 +44,23 @@ function Home() {
         </div>
 
         <div className='homepage-text'>
-          <button onClick={gotoPrompts} className='chat-btn'>
+          <button
+            onClick={gotoPrompts}
+            className='chat-btn'
+            style={{ display: isOpenaiTokenSet ? 'block' : 'none' }}
+          >
             Add Tasks
+          </button>
+          <button
+            onClick={() => {
+              let token = window.prompt('Enter your OpenAI API token here');
+              localStorage.setItem('openai-token', token);
+              setIsOpenaiTokenSet(true);
+            }}
+            className='chat-btn'
+            style={{ display: isOpenaiTokenSet ? 'none' : 'block' }}
+          >
+            Set OpenAI Token
           </button>
           <h1>{'Complete your tasks, one at a time'}</h1>
           <h2>{quotes[Math.floor(Math.random() * 15)]}</h2>
